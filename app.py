@@ -22,7 +22,7 @@ def save_laundry_category():
 
 @app.route('/save_laundry', methods=['POST', 'GET'])
 def save_laundry():
-    if request.method == 'POST' and '':
+    if request.method == 'POST' and 'username' in session:
         # Get data from the form
         customer_name = request.form['customer_name']
         remarks = request.form['remarks']
