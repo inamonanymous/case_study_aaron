@@ -1,5 +1,5 @@
 <div>
-    <form action="">
+    <form action="/save_laundry_category" method="post">
         <label for="category">Category</label>
         <input type="text" name="category" id="Category">
         <br>
@@ -16,13 +16,20 @@
                 Name
             </th>
             <th>
+                Price per Kg
+            </th>
+            <th>
                 Action
             </th>
         </thead>
         <tbody>
+            {% for i in laundry_categories_all %}
             <tr>
                 <td>
-                    static
+                    {{ i.name }}
+                </td>
+                <td>
+                    {{ i.price }}
                 </td>
                 <td>
                     <button>
@@ -33,6 +40,7 @@
                     </button>
                 </td>
             </tr>
+            {% endfor %}
         </tbody>
     </table>
 </div>

@@ -1,5 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
-
+from sqlalchemy import func
+import datetime
 db = SQLAlchemy()
 
 class Users(db.Model):
@@ -32,6 +33,27 @@ class LaundryList(db.Model):
     amount_change = db.Column(db.Double, nullable=False)
     remarks = db.Column(db.String(255), nullable=False)
     date_created = db.Column(db.DateTime, nullable=False)
+    
+    @classmethod
+    def profit_customer_claimed_today(cls):
+        current_date = datetime.date.today()
+        
+        #counts the profit at current timestamp
+        profit = db.session.query(func.sum(cls.total_amount)).filter(
+            (cls.status == 3) & (func.DATE(cls.date_created) == current_date)
+        ).scalar()
+        
+        #counts the customers at current timestamp
+        customer = cls.query.filter(
+            (func.DATE(cls.date_created)==current_date)
+        ).count()
+
+        #counts the claimed laundry at current timestamp
+        claimed_laundry = cls.query.filter(
+            (cls.status==3) & (func.DATE(cls.date_created) == current_date)
+        ).count()
+
+        return profit, customer, claimed_laundry
 
 class LaundryItems(db.Model):
     __tablename__ = 'laundry_items'
