@@ -1,3 +1,18 @@
+<style>
+    /* CSS styles for the modal */
+    .modal {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: #fff;
+        padding: 20px;
+        border: 1px solid #ccc;
+        z-index: 1000;
+    }
+</style>
+
 <div>
     <table>
         <h3>
@@ -13,26 +28,43 @@
             <th>
                 Quantity
             </th>
-            <th>
-                Type
-            </th>
-            <button>
-                Manage Supply
-            </button>
+            <button id="open-modal">Manage Supply</button>
+            <div class="modal" id="modal">
+            <h2>Input Prompt</h2>
+            <form action="/update_supply" method="post">
+                <label for="supply_name">Select supply</label>
+                <select name="supply_name" id="supply_name">
+                    <option value="" selected disabled>Select Value</option>
+                    {% for i in supply_list_all_obj %}
+                        <option value="{{ i.id }}">{{ i.name }}</option>
+                    {% endfor %}
+                </select>
+                <select name="supply_type" id="supply_type">
+                    <option value="" selected disabled>Select Value</option>
+                    <option value=0>USED</option>
+                    <option value=1>IN</option>
+                </select>
+                <label for="supply_qty">Quantity</label>
+                <input type="number" id="supply_qty" name="supply_qty">
+                <button type="submit">Submit</button>
+            </form>
+        <button id="close-modal">Close</button>
+    </div>
         </thead>
         <tbody>
-            <td>
-                static
-            </td>
-            <td>
-                static
-            </td>
-            <td>
-                static
-            </td>
-            <td>
-                `IN\USED` static
-            </td>
+            {% for i in supply_list_all_obj %}
+            <tr>
+                <td>
+                    static
+                </td>
+                <td>
+                    {{ i.name }}
+                </td>
+                <td>
+                    {{ i.qty }}
+                </td>
+            </tr>
+            {% endfor %}
         </tbody>
     </table>
 </div>
@@ -62,3 +94,17 @@
         </tbody>
     </table>
 </div>
+
+<script>
+    const openModalButton = document.getElementById('open-modal');
+    const closeModalButton = document.getElementById('close-modal');
+    const modal = document.getElementById('modal');
+
+    openModalButton.addEventListener('click', function() {
+        modal.style.display = 'block';
+    });
+
+    closeModalButton.addEventListener('click', function() {
+        modal.style.display = 'none';
+    });
+</script>

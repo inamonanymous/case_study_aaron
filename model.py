@@ -20,6 +20,7 @@ class SupplyList(db.Model):
     __tablename__ = 'supply_list'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255), nullable=False)
+    qty = db.Column(db.Integer, default=0)
 
 class LaundryList(db.Model):
     __tablename__ = 'laundry_list'

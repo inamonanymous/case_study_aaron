@@ -1,5 +1,5 @@
 <div>
-    <form action="">
+    <form action="/save_supply" method="post">
         <label for="supply">Supply</label>
         <input type="text" name="supply" id="supply">
         <br>
@@ -13,23 +13,21 @@
                 Name
             </th>
             <th>
-                Action
+                Quantity
             </th>
+            
         </thead>
         <tbody>
+            {% for i in supply_list_all_obj %}
             <tr>
                 <td>
-                    static
+                    {{ i.name }}
                 </td>
                 <td>
-                    <button>
-                        Edit
-                    </button>
-                    <button>
-                        Delete
-                    </button>
+                    {{ i.qty }}
                 </td>
             </tr>
+            {% endfor %}
         </tbody>
     </table>
 </div>

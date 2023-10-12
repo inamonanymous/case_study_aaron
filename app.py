@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, url_for, session, redirect, jsonify
-from model import db, Users, LaundryList, LaundryCategories, LaundryItems
+from model import db, Users, LaundryList, LaundryCategories, LaundryItems, SupplyList
 import datetime
 
 app = Flask(__name__)
@@ -7,17 +7,45 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:@localhost/laundry_aaron'
 db.init_app(app)
 app.secret_key = 'ajdshfaskdjhf'
 
+@app.route('/update_supply', methods=['POST', 'GET'])
+def update_supply():
+    if 'username' in session:
+        supply_name, supply_type, qty = request.form['supply_name'], int(request.form['supply_type']), int(request.form['supply_qty'])
+        supply_obj = SupplyList.query.filter_by(id=supply_name).first()
+        if supply_type==1:
+            supply_obj.qty += qty 
+            db.session.commit()
+            return redirect('/option/option5')
+        supply_obj.qty -= qty
+        db.session.commit()
+        return redirect('/option/option5')
+    return redirect(url_for('index'))
+
+@app.route('/save_supply', methods=['POST', 'GET'])
+def save_supply():
+    if 'username' in session:
+        supply = request.form['supply']
+        if supply:
+            supply_entry = SupplyList(name=supply)
+            db.session.add(supply_entry)
+            db.session.commit()
+            return redirect('/option/option4')
+        return redirect('/option/option4')
+    return redirect(url_for('index'))
+
 @app.route('/save_laundry_category', methods=['POST', 'GET'])
 def save_laundry_category():
     if 'username' in session:
         category, price_kg = request.form['category'], request.form['price_kg']
-        laundry_category_entry = LaundryCategories(
-            name=category,
-            price=price_kg
-        )
-        db.session.add(laundry_category_entry)
-        db.session.commit()
-        return redirect(url_for('dashboard'))
+        if category:
+            laundry_category_entry = LaundryCategories(
+                name=category,
+                price=price_kg
+            )
+            db.session.add(laundry_category_entry)
+            db.session.commit()
+            return redirect(url_for('/option/option3'))
+        return redirect('/option/option3')
     return redirect(url_for('index'))
 
 @app.route('/save_laundry', methods=['POST', 'GET'])
@@ -88,9 +116,18 @@ def option(option):
         #values to display in laundry list page
         laundry_list_all_obj = LaundryList.query.all()
         laundry_categories_all = LaundryCategories.query.all()
-        print(laundry_categories_all)
         
-        return render_template('dashboard.html', selected_option=option, profit=profit, customer=customer, claimed_laundry=claimed_laundry, laundry_list_all_obj=laundry_list_all_obj, laundry_categories_all=laundry_categories_all)
+        #values to display in supply list page
+        supply_list_all_obj = SupplyList.query.all()
+
+        return render_template('dashboard.html', selected_option=option, 
+                               profit=profit, 
+                               customer=customer, 
+                               claimed_laundry=claimed_laundry, 
+                               laundry_list_all_obj=laundry_list_all_obj, 
+                               laundry_categories_all=laundry_categories_all, 
+                               supply_list_all_obj=supply_list_all_obj)
+    
     return redirect(url_for('index'))
 
 @app.route('/dashboard')
