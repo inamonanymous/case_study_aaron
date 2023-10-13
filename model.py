@@ -20,8 +20,7 @@ class SupplyList(db.Model):
     __tablename__ = 'supply_list'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255), nullable=False)
-    qty = db.Column(db.Integer, default=0)
-
+    
 class LaundryList(db.Model):
     __tablename__ = 'laundry_list'
     id = db.Column(db.Integer, primary_key=True)
@@ -78,3 +77,4 @@ class Inventory(db.Model):
     qty = db.Column(db.Integer, nullable=False)
     stock_type = db.Column(db.SmallInteger, nullable=False)
     date_created = db.Column(db.DateTime, nullable=False)
+    main = db.Column(db.SmallInteger, nullable=False)

@@ -28,10 +28,13 @@
             <th>
                 Quantity
             </th>
+            <th>
+                Type
+            </th>
             <button id="open-modal">Manage Supply</button>
             <div class="modal" id="modal">
             <h2>Input Prompt</h2>
-            <form action="/update_supply" method="post">
+            <form action="/manage_inventory" method="post">
                 <label for="supply_name">Select supply</label>
                 <select name="supply_name" id="supply_name">
                     <option value="" selected disabled>Select Value</option>
@@ -52,17 +55,26 @@
     </div>
         </thead>
         <tbody>
-            {% for i in supply_list_all_obj %}
+            {% for i in joined_supply_inventory_obj %}
             <tr>
                 <td>
-                    static
+                    {{ i[0] }}
                 </td>
                 <td>
-                    {{ i.name }}
+                    {{ i[1] }}
                 </td>
                 <td>
-                    {{ i.qty }}
+                    {{ i[2] }}
                 </td>
+                {% if i[3] == 0 %}
+                <td>
+                    USED
+                </td>
+                {% else %}
+                <td>
+                    IN
+                </td>
+                {% endif %}
             </tr>
             {% endfor %}
         </tbody>
@@ -82,15 +94,19 @@
             </th>
         </thead>
         <tbody>
-            <td>
-                static
-            </td>
-            <td>
-                static
-            </td>
-            <td>
-                static
-            </td>
+            {% for i in joined_main_supply_inventory_obj %}
+            <tr>
+                <td>
+                    {{ i[0] }}
+                </td>
+                <td>
+                    {{ i[1] }}
+                </td>
+                <td>
+                    {{ i[2] }}
+                </td>
+            </tr>
+            {% endfor %}
         </tbody>
     </table>
 </div>

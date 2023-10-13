@@ -1,24 +1,45 @@
 from flask import Flask, render_template, request, url_for, session, redirect, jsonify
-from model import db, Users, LaundryList, LaundryCategories, LaundryItems, SupplyList
+from model import db, Users, LaundryList, LaundryCategories, LaundryItems, SupplyList, Inventory
 import datetime
+from sqlalchemy.orm import aliased
+
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:@localhost/laundry_aaron'
 db.init_app(app)
 app.secret_key = 'ajdshfaskdjhf'
 
-@app.route('/update_supply', methods=['POST', 'GET'])
-def update_supply():
+@app.route('/manage_inventory', methods=['POST', 'GET'])
+def manage_inventory():
     if 'username' in session:
-        supply_name, supply_type, qty = request.form['supply_name'], int(request.form['supply_type']), int(request.form['supply_qty'])
-        supply_obj = SupplyList.query.filter_by(id=supply_name).first()
+        supply_id, supply_type, supply_qty = request.form['supply_name'], int(request.form['supply_type']), int(request.form['supply_qty'])
+        inventory_obj = Inventory.query.filter_by(supply_id=supply_id, main=1).first()
+        print(inventory_obj.qty)
         if supply_type==1:
-            supply_obj.qty += qty 
+            inventory_entry = Inventory(
+                supply_id=inventory_obj.supply_id,
+                qty=supply_qty,
+                stock_type=1,
+                date_created=datetime.datetime.now(),
+                main=0
+            )
+            inventory_obj.qty+=inventory_entry.qty
+            db.session.add(inventory_entry)
             db.session.commit()
             return redirect('/option/option5')
-        supply_obj.qty -= qty
-        db.session.commit()
-        return redirect('/option/option5')
+        if supply_qty<inventory_obj.qty:
+            inventory_entry_outside = Inventory(
+                    supply_id=inventory_obj.supply_id,
+                    qty=supply_qty,
+                    stock_type=0,
+                    date_created=datetime.datetime.now(),
+                    main=0
+                )
+            inventory_obj.qty-=inventory_entry_outside.qty
+            db.session.add(inventory_entry_outside)
+            db.session.commit()
+            return redirect('/option/option5')
+        return redirect(url_for('dashboard'))
     return redirect(url_for('index'))
 
 @app.route('/save_supply', methods=['POST', 'GET'])
@@ -28,6 +49,14 @@ def save_supply():
         if supply:
             supply_entry = SupplyList(name=supply)
             db.session.add(supply_entry)
+            db.session.commit()
+            inventory_entry = Inventory(supply_id=supply_entry.id,
+                                        qty=0,
+                                        stock_type='',
+                                        date_created=datetime.datetime.now(),
+                                        main=1)
+            db.session.add(inventory_entry)
+
             db.session.commit()
             return redirect('/option/option4')
         return redirect('/option/option4')
@@ -106,7 +135,23 @@ def get_laundry_data():
         print(filtered_data_dict)
         return jsonify(filtered_data_dict)
     return redirect(url_for('index'))
-
+"""
+@app.route('/get_inventory_data', methods=['GET'])
+def get_inventory_data():
+    if 'username' in session:
+        supply_list_all_obj = SupplyList.query.all()
+        inventory_list_all_obj = Inventory.query.all()
+        selected_category = request.args.get('id')
+        filtered_data = [i for i in inventory_list_all_obj if i.supply_id == [x.id for x in supply_list_all_obj]]
+        filtered_data_dict = [{
+                            'date_created': i.date_created,
+                            'supply_name': i.name,
+                            'qty': i.qty,
+                            'type': i.type
+                               } for i in filtered_data]
+        return filtered_data_dict
+    return redirect(url_for('index'))
+"""
 @app.route('/option/<option>')
 def option(option):
     if 'username' in session:
@@ -120,13 +165,39 @@ def option(option):
         #values to display in supply list page
         supply_list_all_obj = SupplyList.query.all()
 
+        #values to display in inventory page
+        inventory_list_all_obj = Inventory.query.all()
+
+        supply_list_alias = aliased(SupplyList)
+        inventory_list_alias = aliased(Inventory)
+        joined_supply_inventory_obj=db.session.query(inventory_list_alias.date_created, 
+            supply_list_alias.name, 
+            inventory_list_alias.qty, 
+            inventory_list_alias.stock_type)\
+            .join(supply_list_alias, supply_list_alias.id == inventory_list_alias.supply_id)\
+            .filter(inventory_list_alias.main==0)\
+            .all()
+        joined_main_supply_inventory_obj = db.session.query(inventory_list_alias.id,
+                                        supply_list_alias.name,
+                                        inventory_list_alias.qty)\
+                                        .join(supply_list_alias, supply_list_alias.id==inventory_list_alias.supply_id)\
+                                        .filter(inventory_list_alias.main==1)\
+                                        .all()
+
+        #values to display in reports page
+        report_list_all_obj = LaundryList.query.filter_by(status=3).all()
+
         return render_template('dashboard.html', selected_option=option, 
                                profit=profit, 
                                customer=customer, 
                                claimed_laundry=claimed_laundry, 
                                laundry_list_all_obj=laundry_list_all_obj, 
                                laundry_categories_all=laundry_categories_all, 
-                               supply_list_all_obj=supply_list_all_obj)
+                               supply_list_all_obj=supply_list_all_obj,
+                               inventory_list_all_obj=inventory_list_all_obj,
+                               joined_supply_inventory_obj=joined_supply_inventory_obj,
+                               joined_main_supply_inventory_obj=joined_main_supply_inventory_obj,
+                               report_list_all_obj=report_list_all_obj)
     
     return redirect(url_for('index'))
 
