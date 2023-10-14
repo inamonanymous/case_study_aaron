@@ -1,0 +1,45 @@
+<div>
+    <form action="/edit_laundry" method="post">
+        <label for="id">Laundry ID</label>
+        <input type="text" name="id" id="id" value="{{ obj.id }}" readonly>
+        <br>
+        <label for="customer_name">Customer Name</label>
+        <input type="text" name="customer_name" id="customer_name" value="{{ obj.customer_name }}">
+        <br>
+        <label for="status">Status</label>
+        <select name="status" id="status" value={{ obj.status }}>
+            <option value=0>Pending</option>
+            <option value=1>Ongoing</option>
+            <option value=2>Ready</option>
+            <option value=3>Claimed</option>
+        </select>
+        <br>
+        <label for="queue">Queue</label>
+        <input type="text" name="queue" id="queue" value="{{ obj.queue }}">
+        <br>
+        <label for="pay_status">Pay Status</label>
+        <select name="pay_status" id="pay_status">
+            {% if obj.pay_status==1 %}
+            <option value=0>UNPAID</option>
+            <option value=1 selected>PAID</option>
+            {% else %}
+            <option value=0 selected>UNPAID</option>
+            <option value=1>PAID</option>
+            {% endif %}
+        </select>
+        <br>
+        <label for="amount_tendered">Amount Tendered</label>
+        <input type="number" name="amount_tendered" id="amount_tendered" value="{{ obj.amount_tendered }}">
+        <br>
+        <label for="customer_name">Remarks</label>
+        <input type="text" name="remarks" id="remarks" value="{{ obj.remarks }}">
+        <br>
+        <button type="submit">Edit Existing Laundry</button>
+    </form>
+</div>
+
+<div>
+    <a href="/option/option2">
+        <button>Back</button>
+    </a>
+</div>

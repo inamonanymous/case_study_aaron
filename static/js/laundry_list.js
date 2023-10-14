@@ -1,4 +1,12 @@
 $(document).ready(function () {
+    $("#paid").change(function () {
+        if (this.checked) {
+            $("#additionalInputs").show();
+        } else {
+            $("#additionalInputs").hide();
+        }
+    });
+
     // Bind the change event to the dropdown
     $("#laundry_category").on("change", updateTable);
 
@@ -48,4 +56,20 @@ $(document).ready(function () {
 
     // Bind the input event to the weight input field
     $("#weight").on("input", updateTable);
+
+    $("#amount_from_cus").on("input", function () {
+        var enteredAmount = parseFloat($("#amount_from_cus").val());
+        var totalAmount = parseFloat($("#amount").val());
+
+        if (!isNaN(enteredAmount) && enteredAmount >= 0) {
+            // Calculate the change
+            var change = enteredAmount - totalAmount;
+
+            // Update the "change" input field with the calculated change value
+            $("#change").val(change.toFixed(2));
+        }
+    });
+
 });
+
+

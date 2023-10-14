@@ -1,5 +1,53 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="{{ url_for('static', filename='js/laundry_list.js') }}"></script>
+<style>
+    .switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+  
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: 0.4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: 0.4s;
+}
+
+input:checked + .slider {
+  background-color: #2196F3;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #2196F3;
+}
+
+input:checked + .slider:before {
+  transform: translateX(26px);
+}
+
+#additionalInputs{
+    display: none;
+}
+
+</style>
 <div>
     <table>
         <thead>
@@ -13,7 +61,7 @@
                 Customer Name
             </th>
             <th>
-                Status
+                Pay Status
             </th>
             <th>
                 Action
@@ -32,16 +80,18 @@
                     {{ i.customer_name }}
                 </td>
                 <td>
-                    {{ i.status }}
+                    {{ i.pay_status }}
                 </td>
                 <td>
-                    <button>
-                        Edit
-                    </button>
+                    <a href="/edit_existing_laundry/{{ i.id }}">
+                        <button>
+                            Edit
+                        </button>
+                    </a>
                     <button>
                         Delete
                     </button>
-                </td>
+                    </td>
             </tr>
             {% endfor %}
         </tbody>
@@ -80,7 +130,19 @@
         </table>
         <br>
         <input type="hidden" name="amount" id="amount">
-        
+        <label for="paid" class="switch round">Pay
+            <input type="checkbox" name="paid" id="paid" value=1>
+            <span class="slider"></span>
+        </label>
+
+        <div id="additionalInputs">
+            <label for="amount_from_cus">From Customer ₱:</label>
+            <input type="number" name="amount_from_cus" id="amount_from_cus" placeholder="₱amount.00">
+            <label for="change">Change ₱:</label>
+            <input type="number" name="change" id="change" placeholder="₱change.00" readonly>
+            
+        </div>
+
         <button type="submit">Add Laundry</button>
     </form>
 </div>

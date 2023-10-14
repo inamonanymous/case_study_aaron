@@ -3,11 +3,54 @@ from model import db, Users, LaundryList, LaundryCategories, LaundryItems, Suppl
 import datetime
 from sqlalchemy.orm import aliased
 
-
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:@localhost/laundry_aaron'
 db.init_app(app)
 app.secret_key = 'ajdshfaskdjhf'
+
+@app.route('/edit_laundry', methods=['POST', 'GET'])
+def edit_laundry():
+    id, customer_name, status, queue, pay_status, amount_tendered, remarks = request.form['id'], request.form['customer_name'], request.form['status'], request.form['queue'], request.form['pay_status'], request.form['amount_tendered'], request.form['remarks']
+    laundry_obj = LaundryList.query.filter_by(id=id).first()
+    if pay_status==0:
+        if laundry_obj.amount_tendered < laundry_obj.total_amount:
+            return redirect(url_for('dashboard'))
+        laundry_obj.amount_change = laundry_obj.amount_tendered - laundry_obj.total_amount
+        laundry_obj.cutomer_name=customer_name
+        laundry_obj.status=status
+        laundry_obj.pay_status=1
+        laundry_obj.queue=queue
+        laundry_obj.amount_tendered=amount_tendered
+        laundry_obj.remarks=remarks    
+        db.session.commit()
+        return redirect('/option/option2')
+
+    laundry_obj.cutomer_name=customer_name
+    laundry_obj.status=status
+    laundry_obj.queue=queue
+    laundry_obj.remarks=remarks
+    db.session.commit()
+    return redirect('/option/option2')
+
+@app.route('/edit_existing_laundry/<int:id>')
+def edit_existing_laundry(id):
+    if 'username' in session:
+        laundry_obj = LaundryList.query.filter_by(id=id).first()
+        return render_template('edit_laundry_form.html', obj=laundry_obj)
+    return redirect(url_for('index'))
+
+@app.route('/save_user', methods=['POST', 'GET'])
+def save_user():
+    if 'username' in session:
+        current_user = Users.query.filter_by(username=session.get('username', "")).first()
+        if current_user.type==1 and request.method=="POST":
+            name, username, password, type = request.form['name'], request.form['username'], request.form['password'], request.form['type']
+            user_entry = Users(name=name, username=username, password=password, type=type)            
+            db.session.add(user_entry)
+            db.session.commit()
+            return redirect('/option/option7')
+        return redirect(url_for('dashboard'))
+    return redirect(url_for('index'))
 
 @app.route('/manage_inventory', methods=['POST', 'GET'])
 def manage_inventory():
@@ -86,10 +129,39 @@ def save_laundry():
         laundry_category = request.form['laundry_category']
         weight = request.form['weight']
         amount = request.form['amount']  # This will be the calculated amount
+        paid = request.form['paid']
+        
+        if paid:
+            amount_from_cus, change = float(request.form['amount_from_cus']), float(request.form['change'])
+            if change>amount_from_cus:
+                return redirect(url_for('dashboard'))
+            laundry_list_entry = LaundryList(
+                customer_name=customer_name,
+                status=0,
+                queue=1,
+                total_amount=amount,
+                pay_status=paid,
+                amount_tendered=amount_from_cus,
+                amount_change=change,
+                remarks=remarks,
+                date_created=datetime.datetime.now()
+            )
 
-        # You can now process and save this data to your database or perform any other necessary actions
+            laundry_category_obj=LaundryCategories.query.filter_by(name=laundry_category).first()
+            db.session.add(laundry_list_entry)
+            db.session.commit()
+            laundry_item_entry = LaundryItems(
+                laundry_category_id=laundry_category_obj.id,
+                weight=weight,
+                laundry_id=laundry_list_entry.id,
+                unit_price=laundry_category_obj.price,
+                amount=amount
+            )
 
-        # Example: Create a new LaundryList entry in the database
+            db.session.add(laundry_item_entry)
+            db.session.commit()
+            return redirect('/option/option2')
+
         laundry_list_entry = LaundryList(
             customer_name=customer_name,
             status=0,
@@ -118,7 +190,7 @@ def save_laundry():
         db.session.commit()
 
         # Redirect to the desired page after processing
-        return redirect(url_for('dashboard'))
+        return redirect('/option/option2')
     return redirect(url_for('index'))
 
 @app.route('/get_laundry_data', methods=['GET'])
@@ -135,23 +207,8 @@ def get_laundry_data():
         print(filtered_data_dict)
         return jsonify(filtered_data_dict)
     return redirect(url_for('index'))
-"""
-@app.route('/get_inventory_data', methods=['GET'])
-def get_inventory_data():
-    if 'username' in session:
-        supply_list_all_obj = SupplyList.query.all()
-        inventory_list_all_obj = Inventory.query.all()
-        selected_category = request.args.get('id')
-        filtered_data = [i for i in inventory_list_all_obj if i.supply_id == [x.id for x in supply_list_all_obj]]
-        filtered_data_dict = [{
-                            'date_created': i.date_created,
-                            'supply_name': i.name,
-                            'qty': i.qty,
-                            'type': i.type
-                               } for i in filtered_data]
-        return filtered_data_dict
-    return redirect(url_for('index'))
-"""
+
+
 @app.route('/option/<option>')
 def option(option):
     if 'username' in session:
@@ -187,6 +244,9 @@ def option(option):
         #values to display in reports page
         report_list_all_obj = LaundryList.query.filter_by(status=3).all()
 
+        users_list_all_obj = Users.query.all()
+        #values to display in users page
+
         return render_template('dashboard.html', selected_option=option, 
                                profit=profit, 
                                customer=customer, 
@@ -197,7 +257,8 @@ def option(option):
                                inventory_list_all_obj=inventory_list_all_obj,
                                joined_supply_inventory_obj=joined_supply_inventory_obj,
                                joined_main_supply_inventory_obj=joined_main_supply_inventory_obj,
-                               report_list_all_obj=report_list_all_obj)
+                               report_list_all_obj=report_list_all_obj,
+                               users_list_all_obj=users_list_all_obj)
     
     return redirect(url_for('index'))
 

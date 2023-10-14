@@ -1,29 +1,31 @@
-<table>
-    <thead>
-        <th>
-            Date
-        </th>
-        <th>
-            Customer Name
-        </th>
-        <th>
-            Total Amount
-        </th>
-    </thead>
-    <tbody>
-        {% for i in report_list_all_obj %}
-        <tr>
+<div>
+    <table>
+        <thead>
+            <th>
+                Date
+            </th>
+            <th>
+                Customer Name
+            </th>
+            <th>
+                Total Amount
+            </th>
+        </thead>
+        <tbody>
+            {% for i in report_list_all_obj %}
+            <tr>
 
-            <td>
-                {{ i.date_created }}
-            </td>
-            <td>
-                {{ i.customer_name }}
-            </td>
-            <td>
-                {{ i.total_amount }}
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+                <td>
+                    {{ i.date_created }}
+                </td>
+                <td>
+                    {{ i.customer_name }}
+                </td>
+                <td>
+                    {{ i.total_amount }}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

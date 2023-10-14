@@ -9,6 +9,7 @@
         <li><a href="{{ url_for('option', option='option4') }}">Supply List</a></li>
         <li><a href="{{ url_for('option', option='option5') }}">Inventory</a></li>
         <li><a href="{{ url_for('option', option='option6') }}">Reports</a></li>
+        <li><a href="{{ url_for('option', option='option7') }}">Users</a></li>
     </ul>
 </div>
 <div class="content">
@@ -40,6 +41,12 @@
     <div>
         <div>
             {% include 'reports.html' %}
+        </div>
+    </div>
+    {% elif selected_option == 'option7' %}
+    <div>
+        <div>
+            {% include 'users.html' %}
         </div>
     </div>
     {% endif %}
