@@ -1,43 +1,40 @@
-<div>
+<div class="container mt-4">
+    <!-- Form for Adding Laundry Category -->
     <form action="/save_laundry_category" method="post">
-        <label for="category">Category</label>
-        <input type="text" name="category" id="Category">
-        <br>
-        <label for="price_kg">Price per kg.</label>
-        <input type="text" name="price_kg" id="price_kg">
-        <br>
-        <button type="submit">Add Category</button>
+        <div class="mb-3">
+            <label for="category" class="form-label">Category</label>
+            <input type="text" class="form-control" name="category" id="category">
+        </div>
+        <div class="mb-3">
+            <label for="price_kg" class="form-label">Price per Kg</label>
+            <input type="text" class="form-control" name="price_kg" id="price_kg">
+        </div>
+        <button type="submit" class="btn btn-primary">Add Category</button>
     </form>
 </div>
-<div>
-    <table>
+
+<div class="container mt-4">
+    <!-- Table for Laundry Categories -->
+    <table class="table">
         <thead>
-            <th>
-                Name
-            </th>
-            <th>
-                Price per Kg
-            </th>
-            <th>
-                Action
-            </th>
+            <tr>
+                <th>Name</th>
+                <th>Price per Kg</th>
+                <th>Action</th>
+            </tr>
         </thead>
         <tbody>
             {% for i in laundry_categories_all %}
             <tr>
+                <td>{{ i.name }}</td>
+                <td>{{ i.price }}</td>
                 <td>
-                    {{ i.name }}
-                </td>
-                <td>
-                    {{ i.price }}
-                </td>
-                <td>
-                    <button>
-                        Edit
-                    </button>
-                    <button>
-                        Delete
-                    </button>
+                    <a href="/edit_existing_category/{{ i.id }}">
+                        <button class="btn btn-warning btn-sm">Edit</button>
+                    </a>
+                    <a href="/delete_category/{{ i.id }}">
+                        <button class="btn btn-danger btn-sm">Delete</button>
+                    </a>
                 </td>
             </tr>
             {% endfor %}

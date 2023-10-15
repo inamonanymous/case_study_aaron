@@ -1,35 +1,33 @@
-<div>
+<div class="container mt-4">
+    <!-- Supply Form -->
     <form action="/save_supply" method="post">
-        <label for="supply">Supply</label>
-        <input type="text" name="supply" id="supply">
-        <br>
-        <button type="submit">Add Supply</button>
+        <div class="mb-3">
+            <label for="supply" class="form-label">Supply</label>
+            <input type="text" name="supply" id="supply" class="form-control">
+        </div>
+        <button type="submit" class="btn btn-primary">Add Supply</button>
     </form>
-</div>
-<div>
-    <table>
+
+    <!-- Supply Table -->
+    <h3>Supply List</h3>
+    <table class="table">
         <thead>
-            <th>
-                Name
-            </th>
-            <th>
-                Action
-            </th>
-            
+            <tr>
+                <th>Name</th>
+                <th>Action</th>
+            </tr>
         </thead>
         <tbody>
             {% for i in supply_list_all_obj %}
             <tr>
+                <td>{{ i.name }}</td>
                 <td>
-                    {{ i.name }}
-                </td>
-                <td>
-                    <button>
-                        Edit
-                    </button>
-                    <button>
-                        Delete
-                    </button>
+                    <a href="/edit_existing_supply/{{ i.id }}">
+                        <button class="btn btn-secondary">Edit</button>
+                    </a>
+                    <a href="/delete_supply/{{ i.id }}">
+                        <button class="btn btn-danger">Delete</button>
+                    </a>
                 </td>
             </tr>
             {% endfor %}

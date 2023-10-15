@@ -1,54 +1,76 @@
 {% extends "layout.html" %}
 {% block body %}
 
-<div class="left-panel">
-    <ul>
-        <li><a href="{{ url_for('option', option='option1') }}">Home</a></li>
-        <li><a href="{{ url_for('option', option='option2') }}">Laundry List</a></li>
-        <li><a href="{{ url_for('option', option='option3') }}">Laundry Category</a></li>
-        <li><a href="{{ url_for('option', option='option4') }}">Supply List</a></li>
-        <li><a href="{{ url_for('option', option='option5') }}">Inventory</a></li>
-        <li><a href="{{ url_for('option', option='option6') }}">Reports</a></li>
-        <li><a href="{{ url_for('option', option='option7') }}">Users</a></li>
-    </ul>
+<div class="container-fluid">
+    <div class="row">
+        <!-- Left Panel with Bootstrap Nav -->
+        <div class="col-md-3 left-panel">
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('option', option='option1') }}">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('option', option='option2') }}">Laundry List</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('option', option='option3') }}">Laundry Category</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('option', option='option4') }}">Supply List</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('option', option='option5') }}">Inventory</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('option', option='option6') }}">Reports</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('option', option='option7') }}">Users</a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Content Area -->
+        <div class="col-md-9 content">
+            {% if selected_option == 'option1' %}
+            <div>
+                {% include 'home.html' %}
+            </div>
+            {% elif selected_option == 'option2' %}
+            <div>
+                {% include 'laundry_list.html' %}
+            </div>
+            {% elif selected_option == 'option3' %}
+            <div>
+                {% include 'laundry_category.html' %}
+            </div>
+            {% elif selected_option == 'option4' %}
+            <div>
+                <div>
+                    {% include 'supply_list.html' %}
+                </div>
+            </div>
+            {% elif selected_option == 'option5' %}
+            <div>
+                <div>
+                    {% include 'inventory.html' %}
+                </div>
+            </div>
+            {% elif selected_option == 'option6' %}
+            <div>
+                <div>
+                    {% include 'reports.html' %}
+                </div>
+            </div>
+            {% elif selected_option == 'option7' %}
+            <div>
+                <div>
+                    {% include 'users.html' %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
 </div>
-<div class="content">
-    {% if selected_option == 'option1' %}
-    <div>
-        {% include 'home.html' %}
-    </div>
-    {% elif selected_option == 'option2' %}
-    <div>
-        {% include 'laundry_list.html' %}
-    </div>
-    {% elif selected_option == 'option3' %}
-    <div>
-        {% include 'laundry_category.html' %}
-    </div>
-    {% elif selected_option == 'option4' %}
-    <div>
-        <div>
-            {% include 'supply_list.html' %}
-        </div>
-    </div>
-    {% elif selected_option == 'option5' %}
-    <div>
-        <div>
-            {% include 'inventory.html' %}
-        </div>
-    </div>
-    {% elif selected_option == 'option6' %}
-    <div>
-        <div>
-            {% include 'reports.html' %}
-        </div>
-    </div>
-    {% elif selected_option == 'option7' %}
-    <div>
-        <div>
-            {% include 'users.html' %}
-        </div>
-    </div>
-    {% endif %}
-</div>
+
 {% endblock %}

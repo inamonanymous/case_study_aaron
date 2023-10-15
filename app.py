@@ -8,29 +8,137 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:@localhost/laundry_aaron'
 db.init_app(app)
 app.secret_key = 'ajdshfaskdjhf'
 
-@app.route('/edit_laundry', methods=['POST', 'GET'])
-def edit_laundry():
-    id, customer_name, status, queue, pay_status, amount_tendered, remarks = request.form['id'], request.form['customer_name'], request.form['status'], request.form['queue'], request.form['pay_status'], request.form['amount_tendered'], request.form['remarks']
-    laundry_obj = LaundryList.query.filter_by(id=id).first()
-    if pay_status==0:
-        if laundry_obj.amount_tendered < laundry_obj.total_amount:
-            return redirect(url_for('dashboard'))
-        laundry_obj.amount_change = laundry_obj.amount_tendered - laundry_obj.total_amount
-        laundry_obj.cutomer_name=customer_name
-        laundry_obj.status=status
-        laundry_obj.pay_status=1
-        laundry_obj.queue=queue
-        laundry_obj.amount_tendered=amount_tendered
-        laundry_obj.remarks=remarks    
+@app.route('/delete_user/<int:id>', methods=['POST', 'GET'])
+def delete_user(id):
+    if 'username' in session:
+        target_obj = Users.query.filter_by(id=id).first()
+        if target_obj:
+            db.session.delete(target_obj)
+            db.session.commit()
+            return redirect('/option/option7')
+        return redirect(url_for('dashboard'))
+    return redirect(url_for('index'))
+
+@app.route('/edit_user', methods=['GET'])
+def edit_user():
+    if 'username' in session:
+        id, name, username, password = request.form['id'], request.form['name'], request.form['username'], request.form['password']
+        target_obj = Users.query.filter_by(id=id).first()
+        if target_obj:
+            check_user = Users.query.filter_by(username=username).first()
+            if check_user:
+                return f"username exists"
+            target_obj.name = name
+            target_obj.username = username
+            target_obj.password = password
+            db.session.commit()
+            return redirect('/option/option7')
+        return redirect(url_for('dashboard'))
+    return redirect(url_for('index'))
+
+@app.route('/edit_existing_user/<int:id>', methods=['GET'])
+def edit_existing_user(id):
+    if 'username' in session:
+        users_obj = Users.query.filter_by(id=id).first()
+        return render_template('edit_supply_form.html', obj=users_obj)
+    return redirect(url_for('index'))
+
+@app.route('/delete_supply/<int:id>', methods=['POST', 'GET'])
+def delete_supply(id):
+    if 'username' in session:
+        target_obj = SupplyList.query.filter_by(id=id).first()
+        db.session.delete(target_obj)
+        db.session.commit()
+        return redirect('/option/option4')
+    return redirect(url_for('url_for'))
+
+@app.route('/edit_supply', methods=['POST', 'GET'])
+def edit_supply():
+    if 'username' in session:
+        id, name = request.form['id'], request.form['name']
+        target_obj = SupplyList.query.filter_by(id=id).first()
+        target_obj.name = name
+        db.session.commit()
+        return redirect('/option/option4')
+    return redirect(url_for('index'))
+
+@app.route('/edit_existing_supply/<int:id>', methods=['GET'])
+def edit_existing_supply(id):
+    if 'username' in session:
+        suppply_obj = SupplyList.query.filter_by(id=id).first()
+        return render_template('edit_supply_form.html', obj=suppply_obj)
+    return redirect(url_for('index'))
+
+
+@app.route('/delete_category/<int:id>', methods=['POST', 'GET'])
+def delete_category(id):
+    if 'username' in session:
+        target_obj = LaundryCategories.query.filter_by(id=id).first()
+        db.session.delete(target_obj)
+        db.session.commit()
+        return redirect('/option/option3')
+    return redirect(url_for('index'))
+
+@app.route('/edit_category', methods=['POST', 'GET'])
+def edit_category():
+    if 'username' in session:
+        id, name, price_kg = request.form['id'], request.form['name'], request.form['price_kg']
+        target_obj = LaundryCategories.query.filter_by(id=id).first()
+        target_obj.name=name
+        target_obj.price=price_kg
+        db.session.commit()
+        print(target_obj.price)
+        return redirect('/option/option3')
+    return redirect(url_for('index'))
+
+@app.route('/edit_existing_category/<int:id>', methods=['GET'])
+def edit_existing_category(id):
+    if 'username' in session:
+        category_obj = LaundryCategories.query.filter_by(id=id).first()
+        return render_template('edit_category_form.html', obj=category_obj)
+    return redirect(url_for('index'))
+
+@app.route('/delete_laundry/<int:id>', methods=['POST', 'GET'])
+def delete_laundry(id):
+    if 'username' in session:
+        target_laundry_list_obj = LaundryList.query.filter_by(id=id).first()
+        target_laundry_item_obj = LaundryItems.query.filter_by(laundry_id=id).first()
+        db.session.delete(target_laundry_item_obj)
+        db.session.delete(target_laundry_list_obj)
         db.session.commit()
         return redirect('/option/option2')
+    return redirect(url_for('index'))
 
-    laundry_obj.cutomer_name=customer_name
-    laundry_obj.status=status
-    laundry_obj.queue=queue
-    laundry_obj.remarks=remarks
-    db.session.commit()
-    return redirect('/option/option2')
+@app.route('/edit_laundry', methods=['POST', 'GET'])
+def edit_laundry():
+    if 'username' in session:
+        id, customer_name, status, queue, pay_status, amount_tendered, remarks = request.form['id'], request.form['customer_name'], request.form['status'], request.form['queue'], request.form['pay_status'], request.form['amount_tendered'], request.form['remarks']
+        laundry_obj = LaundryList.query.filter_by(id=id).first()
+        if pay_status=="1":
+            if float(amount_tendered) < laundry_obj.total_amount:
+                return redirect(url_for('dashboard'))
+            laundry_obj.amount_change = int(amount_tendered) - laundry_obj.total_amount
+            laundry_obj.cutomer_name=customer_name
+            laundry_obj.status=status
+            laundry_obj.pay_status=1
+            laundry_obj.queue=queue
+            laundry_obj.amount_tendered=amount_tendered
+            laundry_obj.remarks=remarks    
+            db.session.commit()
+            print(f"from inside: {pay_status} {type(pay_status)}")
+            return redirect('/option/option2')
+        elif pay_status=="0":
+            laundry_obj.cutomer_name=customer_name
+            laundry_obj.status=status
+            laundry_obj.queue=queue
+            laundry_obj.remarks=remarks
+            db.session.commit()
+            print(f"from elif: {pay_status} {type(pay_status)}")
+            return redirect('/option/option2')
+    print(f"from other outside: {pay_status} {type(pay_status)}")
+    print(pay_status=="1")
+    print(pay_status=="0")
+    return redirect(url_for('index'))
 
 @app.route('/edit_existing_laundry/<int:id>')
 def edit_existing_laundry(id):
@@ -45,6 +153,11 @@ def save_user():
         current_user = Users.query.filter_by(username=session.get('username', "")).first()
         if current_user.type==1 and request.method=="POST":
             name, username, password, type = request.form['name'], request.form['username'], request.form['password'], request.form['type']
+            
+            check_user = Users.query.filter_by(username=username).first()
+            if check_user:
+                return "user already registered"
+
             user_entry = Users(name=name, username=username, password=password, type=type)            
             db.session.add(user_entry)
             db.session.commit()
@@ -129,20 +242,49 @@ def save_laundry():
         laundry_category = request.form['laundry_category']
         weight = request.form['weight']
         amount = request.form['amount']  # This will be the calculated amount
-        paid = request.form['paid']
-        
-        if paid:
-            amount_from_cus, change = float(request.form['amount_from_cus']), float(request.form['change'])
-            if change>amount_from_cus:
-                return redirect(url_for('dashboard'))
+        try:
+            paid = request.form['paid']
+            
+            if paid:
+                amount_from_cus, change = float(request.form['amount_from_cus']), float(request.form['change'])
+                if change<0 or amount_from_cus is None:
+                    return redirect(url_for('dashboard'))
+                laundry_list_entry = LaundryList(
+                    customer_name=customer_name,
+                    status=0,
+                    queue=1,
+                    total_amount=amount,
+                    pay_status=paid,
+                    amount_tendered=amount_from_cus,
+                    amount_change=change,
+                    remarks=remarks,
+                    date_created=datetime.datetime.now()
+                )
+
+                laundry_category_obj=LaundryCategories.query.filter_by(name=laundry_category).first()
+                db.session.add(laundry_list_entry)
+                db.session.commit()
+                laundry_item_entry = LaundryItems(
+                    laundry_category_id=laundry_category_obj.id,
+                    weight=weight,
+                    laundry_id=laundry_list_entry.id,
+                    unit_price=laundry_category_obj.price,
+                    amount=amount
+                )
+
+                db.session.add(laundry_item_entry)
+                db.session.commit()
+                return redirect('/option/option2')
+
+        except:
             laundry_list_entry = LaundryList(
                 customer_name=customer_name,
                 status=0,
                 queue=1,
                 total_amount=amount,
-                pay_status=paid,
-                amount_tendered=amount_from_cus,
-                amount_change=change,
+                pay_status=0,
+                amount_tendered=0,
+                amount_change=0,
                 remarks=remarks,
                 date_created=datetime.datetime.now()
             )
@@ -157,40 +299,13 @@ def save_laundry():
                 unit_price=laundry_category_obj.price,
                 amount=amount
             )
-
+            # Add and commit the entry to the database
+            
             db.session.add(laundry_item_entry)
             db.session.commit()
+
+            # Redirect to the desired page after processing
             return redirect('/option/option2')
-
-        laundry_list_entry = LaundryList(
-            customer_name=customer_name,
-            status=0,
-            queue=1,
-            total_amount=amount,
-            pay_status=0,
-            amount_tendered=0,
-            amount_change=0,
-            remarks=remarks,
-            date_created=datetime.datetime.now()
-        )
-
-        laundry_category_obj=LaundryCategories.query.filter_by(name=laundry_category).first()
-        db.session.add(laundry_list_entry)
-        db.session.commit()
-        laundry_item_entry = LaundryItems(
-            laundry_category_id=laundry_category_obj.id,
-            weight=weight,
-            laundry_id=laundry_list_entry.id,
-            unit_price=laundry_category_obj.price,
-            amount=amount
-        )
-        # Add and commit the entry to the database
-        
-        db.session.add(laundry_item_entry)
-        db.session.commit()
-
-        # Redirect to the desired page after processing
-        return redirect('/option/option2')
     return redirect(url_for('index'))
 
 @app.route('/get_laundry_data', methods=['GET'])
@@ -212,17 +327,17 @@ def get_laundry_data():
 @app.route('/option/<option>')
 def option(option):
     if 'username' in session:
-        #values to display in home page
+        #values to display in home page <- option1 
         profit, customer, claimed_laundry=LaundryList.profit_customer_claimed_today()
 
-        #values to display in laundry list page
+        #values to display in laundry list page <- option2
         laundry_list_all_obj = LaundryList.query.all()
         laundry_categories_all = LaundryCategories.query.all()
         
-        #values to display in supply list page
+        #values to display in supply list page <- option3
         supply_list_all_obj = SupplyList.query.all()
 
-        #values to display in inventory page
+        #values to display in inventory page <- option4
         inventory_list_all_obj = Inventory.query.all()
 
         supply_list_alias = aliased(SupplyList)
@@ -241,11 +356,11 @@ def option(option):
                                         .filter(inventory_list_alias.main==1)\
                                         .all()
 
-        #values to display in reports page
+        #values to display in reports page <- option5
         report_list_all_obj = LaundryList.query.filter_by(status=3).all()
 
         users_list_all_obj = Users.query.all()
-        #values to display in users page
+        #values to display in users page <- option6
 
         return render_template('dashboard.html', selected_option=option, 
                                profit=profit, 

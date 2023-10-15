@@ -13,103 +13,90 @@
     }
 </style>
 
-<div>
-    <table>
-        <h3>
-            Supply IN/OUT
-        </h3>
-        <thead>
-            <th>
-                Date
-            </th>
-            <th>
-                Supply Name
-            </th>
-            <th>
-                Quantity
-            </th>
-            <th>
-                Type
-            </th>
-            <button id="open-modal">Manage Supply</button>
-            <div class="modal" id="modal">
-            <h2>Input Prompt</h2>
-            <form action="/manage_inventory" method="post">
-                <label for="supply_name">Select supply</label>
-                <select name="supply_name" id="supply_name">
-                    <option value="" selected disabled>Select Value</option>
-                    {% for i in supply_list_all_obj %}
-                        <option value="{{ i.id }}">{{ i.name }}</option>
-                    {% endfor %}
-                </select>
-                <select name="supply_type" id="supply_type">
-                    <option value="" selected disabled>Select Value</option>
-                    <option value=0>USED</option>
-                    <option value=1>IN</option>
-                </select>
-                <label for="supply_qty">Quantity</label>
-                <input type="number" id="supply_qty" name="supply_qty">
-                <button type="submit">Submit</button>
-            </form>
-        <button id="close-modal">Close</button>
-    </div>
+<div class="container mt-4">
+    <h3>Supply IN/OUT</h3>
+    <table class="table table-bordered">
+        <thead class="table-dark">
+            <tr>
+                <th>Date</th>
+                <th>Supply Name</th>
+                <th>Quantity</th>
+                <th>Type</th>
+            </tr>
         </thead>
         <tbody>
             {% for i in joined_supply_inventory_obj %}
             <tr>
+                <td>{{ i[0] }}</td>
+                <td>{{ i[1] }}</td>
+                <td>{{ i[2] }}</td>
                 <td>
-                    {{ i[0] }}
-                </td>
-                <td>
-                    {{ i[1] }}
-                </td>
-                <td>
-                    {{ i[2] }}
-                </td>
-                {% if i[3] == 0 %}
-                <td>
+                    {% if i[3] == 0 %}
                     USED
-                </td>
-                {% else %}
-                <td>
+                    {% else %}
                     IN
+                    {% endif %}
                 </td>
-                {% endif %}
             </tr>
             {% endfor %}
         </tbody>
     </table>
+    <button id="open-modal" class="btn btn-primary">Manage Supply</button>
 </div>
-<div>
-    <table>
-        <thead>
-            <th>
-                ID
-            </th>
-            <th>
-                Supply Name
-            </th>
-            <th>
-                Stock Available
-            </th>
+
+<div class="modal" id="modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Input Prompt</h5>
+                <button type="button" class="btn-close" id="close-modal" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form action="/manage_inventory" method="post">
+                    <label for="supply_name" class="form-label">Select supply</label>
+                    <select name="supply_name" id="supply_name" class="form-select">
+                        <option value="" selected disabled>Select Value</option>
+                        {% for i in supply_list_all_obj %}
+                        <option value="{{ i.id }}">{{ i.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <label for="supply_type" class="form-label">Supply Type</label>
+                    <select name="supply_type" id="supply_type" class="form-select">
+                        <option value="" selected disabled>Select Value</option>
+                        <option value="0">USED</option>
+                        <option value="1">IN</option>
+                    </select>
+                    <label for="supply_qty" class="form-label">Quantity</label>
+                    <input type="number" id="supply_qty" name="supply_qty" class="form-control">
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container mt-4">
+    <h3>Supply Inventory</h3>
+    <table class="table table-bordered">
+        <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Supply Name</th>
+                <th>Stock Available</th>
+            </tr>
         </thead>
         <tbody>
             {% for i in joined_main_supply_inventory_obj %}
             <tr>
-                <td>
-                    {{ i[0] }}
-                </td>
-                <td>
-                    {{ i[1] }}
-                </td>
-                <td>
-                    {{ i[2] }}
-                </td>
+                <td>{{ i[0] }}</td>
+                <td>{{ i[1] }}</td>
+                <td>{{ i[2] }}</td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
 </div>
+
 
 <script>
     const openModalButton = document.getElementById('open-modal');

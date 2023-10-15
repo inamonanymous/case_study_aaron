@@ -1,45 +1,52 @@
-<div>
-    <form action="/edit_laundry" method="post">
-        <label for="id">Laundry ID</label>
-        <input type="text" name="id" id="id" value="{{ obj.id }}" readonly>
-        <br>
-        <label for="customer_name">Customer Name</label>
-        <input type="text" name="customer_name" id="customer_name" value="{{ obj.customer_name }}">
-        <br>
-        <label for="status">Status</label>
-        <select name="status" id="status" value={{ obj.status }}>
-            <option value=0>Pending</option>
-            <option value=1>Ongoing</option>
-            <option value=2>Ready</option>
-            <option value=3>Claimed</option>
+{% extends "layout.html" %}
+{% block body %}
+<div class="container mt-4">
+    <form action="/edit_laundry" method="post" class="mx-auto p-4 border rounded bg-light" style="max-width: 400px;">
+        <label for="id" class="mt-3">Laundry ID</label>
+        <input type="text" name="id" id="id" value="{{ obj.id }}" class="form-control" readonly>
+
+        <label for="customer_name" class="mt-3">Customer Name</label>
+        <input type="text" name="customer_name" id="customer_name" value="{{ obj.customer_name }}" class="form-control">
+
+        <label for="status" class="mt-3">Status</label>
+        <select name="status" id="status" class="form-select">
+            <option value="0" {% if obj.status == 0 %}selected{% endif %}>Pending</option>
+            <option value="1" {% if obj.status == 1 %}selected{% endif %}>Ongoing</option>
+            <option value="2" {% if obj.status == 2 %}selected{% endif %}>Ready</option>
+            <option value="3" {% if obj.status == 3 %}selected{% endif %}>Claimed</option>
         </select>
-        <br>
-        <label for="queue">Queue</label>
-        <input type="text" name="queue" id="queue" value="{{ obj.queue }}">
-        <br>
-        <label for="pay_status">Pay Status</label>
-        <select name="pay_status" id="pay_status">
-            {% if obj.pay_status==1 %}
-            <option value=0>UNPAID</option>
-            <option value=1 selected>PAID</option>
+
+        <label for="queue" class="mt-3">Queue</label>
+        <input type="text" name="queue" id="queue" value="{{ obj.queue }}" class="form-control">
+
+        <label for="pay_status" class="mt-3">Pay Status</label>
+        <select name="pay_status" id="pay_status" class="form-select">
+            {% if obj.pay_status == 1 %}
+            <option value="1" selected>PAID</option>
             {% else %}
-            <option value=0 selected>UNPAID</option>
-            <option value=1>PAID</option>
+            <option value="0" selected>UNPAID</option>
+            <option value="1">PAID</option>
             {% endif %}
         </select>
-        <br>
-        <label for="amount_tendered">Amount Tendered</label>
-        <input type="number" name="amount_tendered" id="amount_tendered" value="{{ obj.amount_tendered }}">
-        <br>
-        <label for="customer_name">Remarks</label>
-        <input type="text" name="remarks" id="remarks" value="{{ obj.remarks }}">
-        <br>
-        <button type="submit">Edit Existing Laundry</button>
+
+        <p class="mt-3">Total Amount: ₱{{ obj.total_amount }}</p>
+
+        <label for="amount_tendered" class="mt-3">Amount Tendered</label>
+        {% if obj.pay_status == 1 %}
+        <input type="number" name="amount_tendered" id="amount_tendered" value="{{ obj.amount_tendered }}" class="form-control" readonly>
+        {% else %}
+        <input type="number" name="amount_tendered" id="amount_tendered" value="" class="form-control">
+        {% endif %}
+
+        <label for="customer_name" class="mt-3">Remarks</label>
+        <input type="text" name="remarks" id="remarks" value="{{ obj.remarks }}" class="form-control">
+
+        <button type="submit" class="btn btn-primary mt-4">Edit Existing Laundry</button>
+        <div class="mt-4">
+            <a href="/option/option2" class="text-decoration-none">
+                <button class="btn btn-secondary">Back</button>
+            </a>
+        </div>
     </form>
 </div>
-
-<div>
-    <a href="/option/option2">
-        <button>Back</button>
-    </a>
-</div>
+{% endblock %}

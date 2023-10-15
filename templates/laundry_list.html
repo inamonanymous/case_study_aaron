@@ -48,74 +48,86 @@ input:checked + .slider:before {
 }
 
 </style>
-<div>
-    <table>
+<div class="container mt-4">
+    <!-- Table for Laundry List -->
+    <table class="table table-striped">
         <thead>
-            <th>
-                Date
-            </th>
-            <th>
-                Queue
-            </th>
-            <th>
-                Customer Name
-            </th>
-            <th>
-                Pay Status
-            </th>
-            <th>
-                Action
-            </th>
+            <tr>
+                <th>Date</th>
+                <th>Queue</th>
+                <th>Customer Name</th>
+                <th>Status</th>
+                <th>Total Amount</th>
+                <th>Pay Status</th>
+                <th>Amount Tendered</th>
+                <th>Amount Change</th>
+                <th>Remarks</th>
+                <th>Action</th>
+            </tr>
         </thead>
         <tbody>
             {% for i in laundry_list_all_obj %}
             <tr>
+                <td>{{ i.date_created }}</td>
+                <td>{{ i.queue }}</td>
+                <td>{{ i.customer_name }}</td>
                 <td>
-                    {{ i.date_created }}
+                    {% if i.status==0 %}
+                        <span class="badge bg-warning">Pending</span>
+                    {% elif i.status==1 %}
+                        <span class="badge bg-info">Ongoing</span>
+                    {% elif i.status==2 %}
+                        <span class="badge bg-success">Ready</span>
+                    {% elif i.status==3 %}
+                        <span class="badge bg-primary">Claimed</span>
+                    {% endif %}
                 </td>
+                <td>{{ i.total_amount }}</td>
                 <td>
-                    {{ i.queue }}
+                    {% if i.pay_status==1 %}
+                        <span class="badge bg-success">Paid</span>
+                    {% else %}
+                        <span class="badge bg-danger">Unpaid</span>
+                    {% endif %}
                 </td>
+                <td>{{ i.amount_tendered }}</td>
+                <td>{{ i.amount_change }}</td>
+                <td>{{ i.remarks }}</td>
                 <td>
-                    {{ i.customer_name }}
+                    <a href="/edit_existing_laundry/{{ i.id }}" class="btn btn-primary btn-sm">Edit</a>
+                    <a href="/delete_laundry/{{ i.id }}" class="btn btn-danger btn-sm">Delete</a>
                 </td>
-                <td>
-                    {{ i.pay_status }}
-                </td>
-                <td>
-                    <a href="/edit_existing_laundry/{{ i.id }}">
-                        <button>
-                            Edit
-                        </button>
-                    </a>
-                    <button>
-                        Delete
-                    </button>
-                    </td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
 </div>
-<div>
+
+<div class="container mt-4">
+    <!-- Form for Adding Laundry -->
     <form action="/save_laundry" method="post">
-        <label for="customer_name">Customer Name</label>
-        <input type="text" name="customer_name" id="customer_name">
-        <br>
-        <label for="remarks">Remarks</label>
-        <input type="text" name="remarks" id="remarks">
-        <br>
-        <label for="laundry_category">Laundry Category</label>
-        <select id="laundry_category" name="laundry_category">
-        {% for i in laundry_categories_all %}
-            <option value="{{ i.name }}">{{ i.name }}</option>
-        {% endfor %}
-        </select>
-        <br>
-        <label for="weight">Weight</label>
-        <input type="number" name="weight" id="weight">
-        <br>
-        <table id="laundry_table" border="1">
+        <div class="mb-3">
+            <label for="customer_name" class="form-label">Customer Name</label>
+            <input type="text" class="form-control" name="customer_name" id="customer_name">
+        </div>
+        <div class="mb-3">
+            <label for="remarks" class="form-label">Remarks</label>
+            <input type="text" class="form-control" name="remarks" id="remarks">
+        </div>
+        <div class="mb-3">
+            <label for="laundry_category" class="form-label">Laundry Category</label>
+            <select class="form-select" id="laundry_category" name="laundry_category">
+                <option selected disabled>Select Value</option>
+                {% for i in laundry_categories_all %}
+                    <option value="{{ i.name }}">{{ i.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="weight" class="form-label">Weight</label>
+            <input type="number" class="form-control" name="weight" id="weight">
+        </div>
+        <table id="laundry_table" class="table table-bordered">
             <thead>
                 <tr>
                     <th>Category</th>
@@ -124,25 +136,25 @@ input:checked + .slider:before {
                     <th>Amount</th>
                 </tr>
             </thead>
-            <tbody>
-                
-            </tbody>
+            <tbody></tbody>
         </table>
-        <br>
         <input type="hidden" name="amount" id="amount">
-        <label for="paid" class="switch round">Pay
-            <input type="checkbox" name="paid" id="paid" value=1>
-            <span class="slider"></span>
-        </label>
-
-        <div id="additionalInputs">
-            <label for="amount_from_cus">From Customer ₱:</label>
-            <input type="number" name="amount_from_cus" id="amount_from_cus" placeholder="₱amount.00">
-            <label for="change">Change ₱:</label>
-            <input type="number" name="change" id="change" placeholder="₱change.00" readonly>
-            
+        <div class="mb-3">
+            <label for="paid" class="form-check-label">Pay</label>
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" name="paid" id="paid" value="1">
+            </div>
         </div>
-
-        <button type="submit">Add Laundry</button>
+        <div id="additionalInputs">
+            <div class="mb-3">
+                <label for="amount_from_cus" class="form-label">From Customer ₱:</label>
+                <input type="number" class="form-control" name="amount_from_cus" id="amount_from_cus" placeholder="₱amount.00">
+            </div>
+            <div class="mb-3">
+                <label for="change" class="form-label">Change ₱:</label>
+                <input type="number" class="form-control" name="change" id="change" placeholder="₱change.00" readonly>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Add Laundry</button>
     </form>
 </div>

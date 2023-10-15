@@ -1,3 +1,28 @@
-<p>Total Profit Today: {{ profit }}</p>
-<p>Total Customer Today: {{ customer }}</p>
-<p>Total Claimed Laundry Today:  {{ claimed_laundry }} </p>
+<div class="container">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Total Profit Today</h5>
+                    <p class="card-text">{{ profit }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Total Customer Today</h5>
+                    <p class="card-text">{{ customer }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Total Claimed Laundry Today</h5>
+                    <p class="card-text">{{ claimed_laundry }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
