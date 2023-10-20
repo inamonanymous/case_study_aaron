@@ -11,8 +11,9 @@ app.secret_key = 'ajdshfaskdjhf'
 @app.route('/delete_user/<int:id>', methods=['POST', 'GET'])
 def delete_user(id):
     if 'username' in session:
+        current_user = Users.query.filter_by(username=session.get('username', "")).first()
         target_obj = Users.query.filter_by(id=id).first()
-        if target_obj:
+        if current_user.type==1 and target_obj.type==0:
             db.session.delete(target_obj)
             db.session.commit()
             return redirect('/option/option7')
@@ -112,7 +113,7 @@ def delete_laundry(id):
 @app.route('/edit_laundry', methods=['POST', 'GET'])
 def edit_laundry():
     if 'username' in session:
-        id, customer_name, status, queue, pay_status, amount_tendered, remarks = request.form['id'], request.form['customer_name'], request.form['status'], request.form['queue'], request.form['pay_status'], request.form['amount_tendered'], request.form['remarks']
+        id, customer_name, status, queue, pay_status, amount_tendered, remarks = request.form['id'], request.form['customer_name'], request.form['status'], request.form['queue'], request.form['pay_status'], float(request.form['amount_tendered']), request.form['remarks']
         laundry_obj = LaundryList.query.filter_by(id=id).first()
         if pay_status=="1":
             if float(amount_tendered) < laundry_obj.total_amount:
@@ -125,7 +126,6 @@ def edit_laundry():
             laundry_obj.amount_tendered=amount_tendered
             laundry_obj.remarks=remarks    
             db.session.commit()
-            print(f"from inside: {pay_status} {type(pay_status)}")
             return redirect('/option/option2')
         elif pay_status=="0":
             laundry_obj.cutomer_name=customer_name
@@ -133,11 +133,7 @@ def edit_laundry():
             laundry_obj.queue=queue
             laundry_obj.remarks=remarks
             db.session.commit()
-            print(f"from elif: {pay_status} {type(pay_status)}")
             return redirect('/option/option2')
-    print(f"from other outside: {pay_status} {type(pay_status)}")
-    print(pay_status=="1")
-    print(pay_status=="0")
     return redirect(url_for('index'))
 
 @app.route('/edit_existing_laundry/<int:id>')
@@ -170,7 +166,6 @@ def manage_inventory():
     if 'username' in session:
         supply_id, supply_type, supply_qty = request.form['supply_name'], int(request.form['supply_type']), int(request.form['supply_qty'])
         inventory_obj = Inventory.query.filter_by(supply_id=supply_id, main=1).first()
-        print(inventory_obj.qty)
         if supply_type==1:
             inventory_entry = Inventory(
                 supply_id=inventory_obj.supply_id,
@@ -212,7 +207,6 @@ def save_supply():
                                         date_created=datetime.datetime.now(),
                                         main=1)
             db.session.add(inventory_entry)
-
             db.session.commit()
             return redirect('/option/option4')
         return redirect('/option/option4')
@@ -229,7 +223,7 @@ def save_laundry_category():
             )
             db.session.add(laundry_category_entry)
             db.session.commit()
-            return redirect(url_for('/option/option3'))
+            return redirect('/option/option3')
         return redirect('/option/option3')
     return redirect(url_for('index'))
 
@@ -244,7 +238,6 @@ def save_laundry():
         amount = request.form['amount']  # This will be the calculated amount
         try:
             paid = request.form['paid']
-            
             if paid:
                 amount_from_cus, change = float(request.form['amount_from_cus']), float(request.form['change'])
                 if change<0 or amount_from_cus is None:
@@ -396,9 +389,5 @@ def index():
     session.clear()
     return render_template('index.html')
 
-
-
 if __name__ == "__main__":
-    """with app.app_context():
-        db.create_all()"""
     app.run(debug=True, host="0.0.0.0")
