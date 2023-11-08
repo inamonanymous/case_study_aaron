@@ -113,7 +113,7 @@ def delete_laundry(id):
 @app.route('/edit_laundry', methods=['POST', 'GET'])
 def edit_laundry():
     if 'username' in session:
-        id, customer_name, status, queue, pay_status, amount_tendered, remarks = request.form['id'], request.form['customer_name'], request.form['status'], request.form['queue'], request.form['pay_status'], float(request.form['amount_tendered']), request.form['remarks']
+        id, customer_name, status, queue, pay_status, amount_tendered, remarks = request.form['id'], request.form['customer_name'], request.form['status'], request.form['queue'], request.form['pay_status'], request.form['amount_tendered'], request.form['remarks']
         laundry_obj = LaundryList.query.filter_by(id=id).first()
         if pay_status=="1":
             if float(amount_tendered) < laundry_obj.total_amount:
@@ -123,7 +123,7 @@ def edit_laundry():
             laundry_obj.status=status
             laundry_obj.pay_status=1
             laundry_obj.queue=queue
-            laundry_obj.amount_tendered=amount_tendered
+            laundry_obj.amount_tendered=float(amount_tendered)
             laundry_obj.remarks=remarks    
             db.session.commit()
             return redirect('/option/option2')
@@ -367,7 +367,6 @@ def option(option):
                                joined_main_supply_inventory_obj=joined_main_supply_inventory_obj,
                                report_list_all_obj=report_list_all_obj,
                                users_list_all_obj=users_list_all_obj)
-    
     return redirect(url_for('index'))
 
 @app.route('/dashboard')
