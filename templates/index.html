@@ -1,9 +1,17 @@
 {% extends "layout.html" %}
 {% block body %}
+<style>
+    .card {
+    border-radius: 10px;
+    }
+    .container{
+        border-radius: 10px;
+    }
+</style>
 <div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-6">
-            <div class="card shadow-lg">
+            <div class="card shadow-lg rounded">
                 <div class="card-body border-danger-subtle bg-black">
                     <h2 class="card-title text-center text-info">Log in to Your Account</h2>
                     <form action="/authenticate" method="post">

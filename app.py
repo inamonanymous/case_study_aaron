@@ -113,26 +113,26 @@ def delete_laundry(id):
 @app.route('/edit_laundry', methods=['POST', 'GET'])
 def edit_laundry():
     if 'username' in session:
-        id, customer_name, status, queue, pay_status, amount_tendered, remarks = request.form['id'], request.form['customer_name'], request.form['status'], request.form['queue'], request.form['pay_status'], request.form['amount_tendered'], request.form['remarks']
+        id, customer_name, status, pay_status, amount_tendered, remarks = request.form['id'], request.form['customer_name'], request.form['status'], request.form['pay_status'], request.form['amount_tendered'], request.form['remarks']
         laundry_obj = LaundryList.query.filter_by(id=id).first()
         if pay_status=="1":
             if float(amount_tendered) < laundry_obj.total_amount:
                 return redirect(url_for('dashboard'))
-            laundry_obj.amount_change = int(amount_tendered) - laundry_obj.total_amount
+            laundry_obj.amount_change = float(amount_tendered) - laundry_obj.total_amount
             laundry_obj.cutomer_name=customer_name
             laundry_obj.status=status
             laundry_obj.pay_status=1
-            laundry_obj.queue=queue
             laundry_obj.amount_tendered=float(amount_tendered)
             laundry_obj.remarks=remarks    
+            dequeue_customer()
             db.session.commit()
             return redirect('/option/option2')
         elif pay_status=="0":
             laundry_obj.cutomer_name=customer_name
             laundry_obj.status=status
-            laundry_obj.queue=queue
             laundry_obj.remarks=remarks
             db.session.commit()
+            dequeue_customer()
             return redirect('/option/option2')
     return redirect(url_for('index'))
 
@@ -227,6 +227,41 @@ def save_laundry_category():
         return redirect('/option/option3')
     return redirect(url_for('index'))
 
+def enqueue_customer(customer_name,
+                    status,
+                    total_amount,
+                    pay_status,
+                    amount_tendered,
+                    amount_change,
+                    remarks,
+                ):
+    # Get the next available queue number
+    next_queue_number = LaundryList.query.filter_by(status=0).count() + 1
+    
+    # Create a new customer and add to the database
+    return LaundryList(
+                    customer_name=customer_name,
+                    status=status,
+                    queue=next_queue_number,
+                    total_amount=total_amount,
+                    pay_status=pay_status,
+                    amount_tendered=amount_tendered,
+                    amount_change=amount_change,
+                    remarks=remarks,
+                    date_created=datetime.datetime.now()
+                )
+    
+
+# Function to dequeue a customer
+def dequeue_customer():
+    # Get the customer with the lowest queue number
+    customer = LaundryList.query.order_by(LaundryList.queue).filter_by(status=0).first()
+    if customer:
+        customer.queue = 0
+        db.session.commit()
+    else:
+        print(None)
+
 @app.route('/save_laundry', methods=['POST', 'GET'])
 def save_laundry():
     if request.method == 'POST' and 'username' in session:
@@ -242,21 +277,13 @@ def save_laundry():
                 amount_from_cus, change = float(request.form['amount_from_cus']), float(request.form['change'])
                 if change<0 or amount_from_cus is None:
                     return redirect(url_for('dashboard'))
-                laundry_list_entry = LaundryList(
-                    customer_name=customer_name,
-                    status=0,
-                    queue=1,
-                    total_amount=amount,
-                    pay_status=paid,
-                    amount_tendered=amount_from_cus,
-                    amount_change=change,
-                    remarks=remarks,
-                    date_created=datetime.datetime.now()
-                )
+                
+                laundry_list_entry = enqueue_customer(customer_name, 0, amount, paid, amount_from_cus, change, remarks)
 
                 laundry_category_obj=LaundryCategories.query.filter_by(name=laundry_category).first()
                 db.session.add(laundry_list_entry)
                 db.session.commit()
+
                 laundry_item_entry = LaundryItems(
                     laundry_category_id=laundry_category_obj.id,
                     weight=weight,
@@ -270,17 +297,7 @@ def save_laundry():
                 return redirect('/option/option2')
 
         except:
-            laundry_list_entry = LaundryList(
-                customer_name=customer_name,
-                status=0,
-                queue=1,
-                total_amount=amount,
-                pay_status=0,
-                amount_tendered=0,
-                amount_change=0,
-                remarks=remarks,
-                date_created=datetime.datetime.now()
-            )
+            laundry_list_entry = enqueue_customer(customer_name, 0, amount, 0, 0, 0, remarks)
 
             laundry_category_obj=LaundryCategories.query.filter_by(name=laundry_category).first()
             db.session.add(laundry_list_entry)
