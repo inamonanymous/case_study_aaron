@@ -11,10 +11,27 @@
         border: 1px solid #ccc;
         z-index: 1000;
     }
+    table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+th, td {
+    padding: 12px;
+    border: 1px solid #ddd;
+    text-align: center;
+}
+
+.container {
+    max-height: 400px; /* Set your desired fixed height */
+    overflow-y: auto;
+}
 </style>
 
 <div class="container mt-4">
     <h3>Supply IN/OUT</h3>
+    <button id="open-modal" class="btn btn-primary">Manage Supply</button>
     <table class="table table-bordered">
         <thead class="table-dark">
             <tr>
@@ -27,7 +44,7 @@
         <tbody>
             {% for i in joined_supply_inventory_obj %}
             <tr>
-                <td>{{ i[0] }}</td>
+                <td>{{ i[0].strftime('%B %d, %Y, %I:%M:%S %p') }}</td>
                 <td>{{ i[1] }}</td>
                 <td>{{ i[2] }}</td>
                 <td>
@@ -41,7 +58,7 @@
             {% endfor %}
         </tbody>
     </table>
-    <button id="open-modal" class="btn btn-primary">Manage Supply</button>
+    
 </div>
 
 <div class="modal" id="modal">

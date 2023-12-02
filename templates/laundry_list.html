@@ -1,12 +1,11 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="{{ url_for('static', filename='js/laundry_list.js') }}"></script>
 <style>
-    .switch {
+.switch {
   position: relative;
   display: inline-block;
   width: 60px;
   height: 34px;
-  
 }
 
 .slider {
@@ -51,6 +50,23 @@ input:checked + .slider:before {
     width: 70px;
 }
 
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+th, td {
+    padding: 12px;
+    border: 1px solid #ddd;
+    text-align: center;
+}
+
+.container {
+    max-height: 400px; /* Set your desired fixed height */
+    overflow-y: auto;
+}
+
 </style>
 <div class="container mt-4">
     <!-- Table for Laundry List -->
@@ -72,7 +88,7 @@ input:checked + .slider:before {
         <tbody>
             {% for i in laundry_list_all_obj %}
             <tr>
-                <td>{{ i.date_created }}</td>
+                <td>{{ i.date_created.strftime('%B %d, %Y, %I:%M:%S %p') }}</td>
                 <td>{{ i.queue }}</td>
                 <td>{{ i.customer_name }}</td>
                 <td>

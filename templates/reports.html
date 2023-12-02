@@ -11,7 +11,7 @@
         <tbody>
             {% for i in report_list_all_obj %}
             <tr>
-                <td>{{ i.date_created }}</td>
+                <td>{{ i.date_created.strftime('%B %d, %Y, %I:%M:%S %p') }}</td>
                 <td>{{ i.customer_name }}</td>
                 <td>{{ i.total_amount }}</td>
             </tr>

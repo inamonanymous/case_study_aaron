@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, url_for, session, redirect, j
 from model import db, Users, LaundryList, LaundryCategories, LaundryItems, SupplyList, Inventory
 import datetime
 from sqlalchemy.orm import aliased
+from sqlalchemy import desc
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:@localhost/laundry_aaron'
@@ -341,8 +342,8 @@ def option(option):
         profit, customer, claimed_laundry=LaundryList.profit_customer_claimed_today()
 
         #values to display in laundry list page <- option2
-        laundry_list_all_obj = LaundryList.query.all()
-        laundry_categories_all = LaundryCategories.query.all()
+        laundry_list_all_obj = LaundryList.query.order_by(desc(LaundryList.id)).all()
+        laundry_categories_all = LaundryCategories.query.order_by(desc(LaundryCategories.id)).all()
         
         #values to display in supply list page <- option3
         supply_list_all_obj = SupplyList.query.all()
