@@ -1,18 +1,72 @@
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+    }
+
+    div {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    form {
+        max-width: 300px;
+        margin: 0 auto;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 5px;
+    }
+
+    input {
+        width: 100%;
+        padding: 8px;
+        margin-bottom: 10px;
+        box-sizing: border-box;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+
+    button {
+        background-color: #4caf50;
+        color: #fff;
+        padding: 10px 15px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    button:hover {
+        background-color: #45a049;
+    }
+</style>
+<title>Edit User Form</title>
+</head>
+<body>
 
 <div>
-    <form action="/edit_user" method="post">
-        <label for="id">User ID</label>
-        <input type="number" name="id" id="id" readonly>
-        <br>
-        <label for="name">Name</label>
-        <input type="text" name="name" id="name">
-        <br>
-        <label for="username">Username</label>
-        <input type="text" name="name" id="name">
-        <br>
-        <label for="password">Password</label>
-        <input type="text" name="password" id="password">
-        <br>
-        <button type="submit">Edit Existing User</button>
-    </form>
+<form action="/edit_user" method="post">
+    <p>Username: {{ obj.username }}</p>
+    <br>
+    <input type="number" name="id" id="id" value="{{ obj.id }}" hidden>
+    <br>
+    <label for="name">Name</label>
+    <input type="text" name="name" id="name" value="{{ obj.name }}">
+    <br>
+    <label for="password">Password</label>
+    <input type="password" name="password" id="password" value="{{ obj.password }}">
+    <br>
+    <button type="submit">Edit Existing User</button>
+</form>
 </div>
+
+</body>

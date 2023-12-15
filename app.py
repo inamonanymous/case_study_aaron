@@ -18,31 +18,28 @@ def delete_user(id):
             db.session.delete(target_obj)
             db.session.commit()
             return redirect('/option/option7')
-        return redirect(url_for('dashboard'))
+        return "<script>alert('Not Deleted! Maybe the current user is Staff or the target user is Admin?');history.back();</script>"
     return redirect(url_for('index'))
 
-@app.route('/edit_user', methods=['GET'])
+@app.route('/edit_user', methods=['POST'])
 def edit_user():
     if 'username' in session:
-        id, name, username, password = request.form['id'], request.form['name'], request.form['username'], request.form['password']
+        current_user = Users.query.filter_by(username=session.get('username', "")).first()
+        id, name, password = request.form['id'], request.form['name'], request.form['password']
         target_obj = Users.query.filter_by(id=id).first()
-        if target_obj:
-            check_user = Users.query.filter_by(username=username).first()
-            if check_user:
-                return f"username exists"
+        if current_user.type==1 and target_obj.type==0:
             target_obj.name = name
-            target_obj.username = username
             target_obj.password = password
             db.session.commit()
             return redirect('/option/option7')
-        return redirect(url_for('dashboard'))
+        return "<script>alert('Not Updated! Maybe the current user is Staff or the target user is Admin?');history.back();</script>"
     return redirect(url_for('index'))
 
 @app.route('/edit_existing_user/<int:id>', methods=['GET'])
 def edit_existing_user(id):
     if 'username' in session:
         users_obj = Users.query.filter_by(id=id).first()
-        return render_template('edit_supply_form.html', obj=users_obj)
+        return render_template('edit_user_form.html', obj=users_obj)
     return redirect(url_for('index'))
 
 @app.route('/delete_supply/<int:id>', methods=['POST', 'GET'])
@@ -153,7 +150,7 @@ def save_user():
             
             check_user = Users.query.filter_by(username=username).first()
             if check_user:
-                return "user already registered"
+                return "<script>alert('Username Exists!');location.reload(true);</script>"
 
             user_entry = Users(name=name, username=username, password=password, type=type)            
             db.session.add(user_entry)
